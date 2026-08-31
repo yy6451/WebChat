@@ -131,7 +131,7 @@ curl -X POST http://127.0.0.1:9007/api/readfriend \
 ## 10) MySQL unread 闭环脚本
 
 ```bash
-cd /home/yy1/TinyWebServer
+cd ~/TinyWebServer
 ./backend/scripts/mysql_seed_demo.sh
 ./backend/scripts/mysql_unread_demo.sh
 ```

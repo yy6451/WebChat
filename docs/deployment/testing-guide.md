@@ -1,4 +1,4 @@
-# TinyWebServer 测试方法文档
+# WebChat 测试方法文档
 
 > 覆盖 HTTP API / WebSocket / 并发压力 / Redis Cluster / MySQL 的完整测试方案。
 
@@ -342,17 +342,17 @@ redis-cli -p 7000 --cluster check 127.0.0.1:7000
 
 ```bash
 # 查看用户表
-mysql -u yy1 -p666888 -e "USE mydb; SELECT id, username, create_time FROM user;"
+mysql -u test -ptest123456 -e "USE mydb; SELECT id, username, create_time FROM user;"
 
 # 查看好友关系
-mysql -u yy1 -p666888 -e "USE mydb; SELECT u1.username AS user, u2.username AS friend FROM friend_relation fr JOIN user u1 ON fr.user_id=u1.id JOIN user u2 ON fr.friend_id=u2.id WHERE fr.status=1;"
+mysql -u test -ptest123456 -e "USE mydb; SELECT u1.username AS user, u2.username AS friend FROM friend_relation fr JOIN user u1 ON fr.user_id=u1.id JOIN user u2 ON fr.friend_id=u2.id WHERE fr.status=1;"
 
 # 查看消息记录
-mysql -u yy1 -p666888 -e "USE mydb; SELECT id, msg_type, from_user_id, to_user_id, LEFT(content,30) AS content, is_read FROM message_log ORDER BY id DESC LIMIT 10;"
+mysql -u test -ptest123456 -e "USE mydb; SELECT id, msg_type, from_user_id, to_user_id, LEFT(content,30) AS content, is_read FROM message_log ORDER BY id DESC LIMIT 10;"
 
 # 验证 MySQL → Redis 双写一致性
 # 比较 MySQL user 表与 Redis user:pwd:{x} 的数量
-mysql -u yy1 -p666888 -e "USE mydb; SELECT COUNT(*) FROM user;"
+mysql -u test -ptest123456 -e "USE mydb; SELECT COUNT(*) FROM user;"
 redis-cli -p 7000 KEYS 'user:pwd:*' | wc -l
 ```
 
@@ -456,7 +456,7 @@ COUNT=$(redis-cli -p 7000 KEYS 'user:pwd:*' 2>/dev/null | wc -l)
 if [ "$COUNT" -gt 0 ]; then echo "  ✅ Redis 有 $COUNT 个用户记录"; else echo "  ❌ Redis 无数据"; fi
 
 echo "===== 4) MySQL 数据验证 ====="
-COUNT=$(mysql -u yy1 -p666888 -N -e "USE mydb; SELECT COUNT(*) FROM user;" 2>/dev/null)
+COUNT=$(mysql -u test -ptest123456 -N -e "USE mydb; SELECT COUNT(*) FROM user;" 2>/dev/null)
 if [ "$COUNT" -gt 0 ]; then echo "  ✅ MySQL 有 $COUNT 个用户记录"; else echo "  ❌ MySQL 无数据"; fi
 
 echo ""

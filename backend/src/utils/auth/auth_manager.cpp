@@ -81,7 +81,7 @@ AuthManager* AuthManager::instance() {
 // 私有构造函数：初始化默认 token 有效期并加载持久化状态
 AuthManager::AuthManager() 
     : token_duration_(7200) {  // 默认 2 小时有效期
-    secret_key_ = "TinyWebServerSecretKey2024!@#";
+    secret_key_ = "WebChatSecretKey2024!@#";
     redis_ready_ = false;
 }
 

@@ -1,4 +1,4 @@
-# TinyWebServer AI Coding Guidelines
+# WebChat AI Coding Guidelines
 
 ## Architecture Overview
 This is a C++ lightweight web server for Linux, implementing a high-performance concurrent model using:

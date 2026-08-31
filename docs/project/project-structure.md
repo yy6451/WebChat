@@ -1,4 +1,4 @@
-# TinyWebChat 项目结构（前后端分离版）
+# WebChat 项目结构（前后端分离版）
 
 > C++17 后端 + Vue3 前端的分布式 WebSocket 聊天系统。
 
@@ -7,7 +7,7 @@
 ## 1. 项目整体结构
 
 ```
-TinyWebServer/
+WebChat/
 ├── backend/                    # 后端 C++ 工程
 │   ├── CMakeLists.txt          # 后端构建入口
 │   ├── Dockerfile              # Docker 部署

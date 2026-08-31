@@ -1,4 +1,4 @@
-# TinyWebChat Backend
+# WebChat Backend
 
 本目录为后端分层结构入口。
 

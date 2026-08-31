@@ -1,4 +1,4 @@
-# TinyWebChat Frontend
+# WebChat Frontend
 
 Vue 3 + Vite + TypeScript + Pinia。
 

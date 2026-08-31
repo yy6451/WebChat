@@ -1,4 +1,4 @@
-# TinyWebServer 部署与使用指南
+# WebChat 部署与使用指南
 
 > 适配最新项目架构，覆盖单机开发部署和三节点集群生产部署。
 
@@ -6,7 +6,7 @@
 
 ## 一、项目概述
 
-TinyWebServer 是一个 C++17 高性能 Web 服务器 + WebSocket 聊天系统，技术栈：
+WebChat 是一个 C++17 高性能 Web 服务器 + WebSocket 聊天系统，技术栈：
 
 - **网络层**：epoll (ET/LT) + 非阻塞 socket + Reactor/Proactor 模式
 - **并发**：线程池 + 经典时间轮定时器 (O(1))
@@ -57,7 +57,7 @@ redis-cli -p 7000 PING
 sudo systemctl start mysql
 mysql -u root < database_init.sql
 # 或用项目账号
-mysql -u yy1 -p666888 < database_init.sql
+mysql -u test -ptest123456 < database_init.sql
 ```
 
 ### 3.3 编译
@@ -143,13 +143,13 @@ sudo ufw allow 3306/tcp
 ### 4.3 步骤 1：代码分发
 
 ```bash
-# 首次（VM1 执行）
-scp -r ~/TinyWebServer yy1@192.168.118.133:~/
-scp -r ~/TinyWebServer yy1@192.168.118.134:~/
+# 首次（VM1 执行，将 ubuntu 替换为你的 VM 登录用户名）
+scp -r ~/TinyWebServer ubuntu@192.168.118.133:~/
+scp -r ~/TinyWebServer ubuntu@192.168.118.134:~/
 
 # 后续更新（只传差异）
-rsync -avz --delete ~/TinyWebServer/ yy1@192.168.118.133:~/TinyWebServer/
-rsync -avz --delete ~/TinyWebServer/ yy1@192.168.118.134:~/TinyWebServer/
+rsync -avz --delete ~/TinyWebServer/ ubuntu@192.168.118.133:~/TinyWebServer/
+rsync -avz --delete ~/TinyWebServer/ ubuntu@192.168.118.134:~/TinyWebServer/
 ```
 
 ### 4.4 步骤 2：MySQL（仅 VM1）
@@ -161,8 +161,8 @@ mysql -u root < database_init.sql
 
 # 授权远程访问
 sudo mysql -e "
-CREATE USER 'yy1'@'192.168.118.%' IDENTIFIED BY '666888';
-GRANT ALL PRIVILEGES ON mydb.* TO 'yy1'@'192.168.118.%';
+CREATE USER 'test'@'192.168.118.%' IDENTIFIED BY 'test123456';
+GRANT ALL PRIVILEGES ON mydb.* TO 'test'@'192.168.118.%';
 FLUSH PRIVILEGES;
 "
 
@@ -171,7 +171,7 @@ sudo sed -i 's/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.
 sudo systemctl restart mysql
 
 # 在 VM2/VM3 上验证
-mysql -h 192.168.118.131 -u yy1 -p666888 -e "SELECT 1"
+mysql -h 192.168.118.131 -u test -ptest123456 -e "SELECT 1"
 ```
 
 ### 4.5 步骤 3：Redis 实例（三台 VM）
@@ -388,7 +388,7 @@ redis-cli -p 7000 KEYS '*'
 redis-cli -p 7000 XINFO STREAM chat:messages
 
 # 查看 MySQL
-mysql -u yy1 -p666888 -e "USE mydb; SELECT COUNT(*) FROM user;"
+mysql -u test -ptest123456 -e "USE mydb; SELECT COUNT(*) FROM user;"
 
 # 查看日志
 tail -f logs/ServerLog

@@ -1,6 +1,6 @@
 # Redis Cluster 三节点部署方案
 
-> 适配 TinyWebServer 项目，3 台 VM + 6 个 Redis 实例 + 1 个 MySQL，跨 VM 交叉部署。
+> 适配 WebChat 项目，3 台 VM + 6 个 Redis 实例 + 1 个 MySQL，跨 VM 交叉部署。
 
 ---
 
@@ -95,9 +95,9 @@ sudo apt install -y redis-server
 将完整项目从 VM1 拷贝到 VM2 和 VM3：
 
 ```bash
-# 在 VM1 上执行（替换实际 IP 和用户名）
-scp -r ~/TinyWebServer yy1@192.168.118.133:~/
-scp -r ~/TinyWebServer yy1@192.168.118.134:~/
+# 在 VM1 上执行（替换实际 IP 和登录用户名）
+scp -r ~/TinyWebServer ubuntu@192.168.118.133:~/
+scp -r ~/TinyWebServer ubuntu@192.168.118.134:~/
 ```
 
 如果 VM2/VM3 用户名不同，请相应修改。
@@ -116,7 +116,7 @@ cd ~/TinyWebServer
 mysql -u root < database_init.sql
 
 # 或者用项目账号导入
-mysql -u yy1 -p666888 < database_init.sql
+mysql -u test -ptest123456 < database_init.sql
 ```
 
 > **注意**：`database_init.sql` 包含 4 张表（user / friend_relation / friend_request / message_log），含 `CREATE TABLE IF NOT EXISTS`，可安全重复执行。
@@ -130,8 +130,8 @@ mysql -u yy1 -p666888 < database_init.sql
 sudo mysql
 
 -- 创建远程访问账号
-CREATE USER 'yy1'@'192.168.118.%' IDENTIFIED BY '666888';
-GRANT ALL PRIVILEGES ON mydb.* TO 'yy1'@'192.168.118.%';
+CREATE USER 'test'@'192.168.118.%' IDENTIFIED BY 'test123456';
+GRANT ALL PRIVILEGES ON mydb.* TO 'test'@'192.168.118.%';
 FLUSH PRIVILEGES;
 
 -- 确认 bind-address 允许外部访问
@@ -145,7 +145,7 @@ FLUSH PRIVILEGES;
 验证远程连接（在 VM2 或 VM3 上执行）：
 
 ```bash
-mysql -h 192.168.118.131 -u yy1 -p666888 -e "SELECT 1"
+mysql -h 192.168.118.131 -u test -ptest123456 -e "SELECT 1"
 ```
 
 ---

@@ -22,8 +22,8 @@
 int main(int argc, char *argv[])
 {
     //需要修改的数据库信息,登录名,密码,库名
-    string user = "yy1";
-    string passwd = "666888";
+    string user = "test";
+    string passwd = "test123456";
     string databasename = "mydb";
 
     //命令行解析
@@ -40,13 +40,12 @@ int main(int argc, char *argv[])
     }
 
     // 统一切换到项目根目录，避免从不同 cwd 启动导致静态目录和日志目录错乱
+    // 优先从相对路径探测；若均失败则保持当前目录
     std::string projectRoot = ".";
     if (access("frontend/dist", F_OK) == 0) {
         projectRoot = ".";
     } else if (access("../frontend/dist", F_OK) == 0) {
         projectRoot = "..";
-    } else if (access("/home/yy1/TinyWebServer/frontend/dist", F_OK) == 0) {
-        projectRoot = "/home/yy1/TinyWebServer";
     }
     if (chdir(projectRoot.c_str()) != 0) {
         perror("chdir project root failed");

@@ -9,7 +9,7 @@
 > - 实际实现中 `database_init.sql` 的 `message_log` 表**不含** `msg_id` 字段（本文档设计中有，为未来预留）
 > - `OnlineUserManager` 实际 API 方法名可能与设计文档有轻微差异（如 `refreshHeartbeat` → `refresh`）
 
-> 基于 TinyWebServer，从单机聊天室升级为三节点分布式 WebSocket 聊天系统。
+> 基于 WebChat，从单机聊天室升级为三节点分布式 WebSocket 聊天系统。
 
 ---
 

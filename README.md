@@ -1,26 +1,50 @@
 
 
-TinyWebServer
-===============
-Linux 下的 C++ 高性能 Web 服务器与 WebSocket 聊天系统，后端与前端分离，支持 HTTP/WS、线程池、epoll、定时器与日志系统。
+# WebChat
 
-## 功能亮点
+Linux 下的 **C++17 高性能 Web 服务器与分布式 WebSocket 聊天系统**,前后端分离,支持 HTTP/WebSocket 双协议、epoll 高并发、Redis Cluster 跨服务器消息互通与 MySQL 双写持久化。
 
-- 线程池 + 非阻塞 socket + epoll（ET/LT）并发模型
-- Reactor / 模拟 Proactor 模式可选
-- HTTP 请求解析（GET/POST）与静态资源服务
-- WebSocket 聊天室（Redis Cluster 驱动，数据库可选）
-- 同步/异步日志系统与连接超时管理
+## ✨ 功能特性
 
-## 目录结构
+- 线程池 + 非阻塞 socket + epoll(ET/LT)并发模型
+- Reactor / 模拟 Proactor 事件模型可选
+- 状态机 HTTP 请求解析(GET/POST)+ 静态资源服务
+- WebSocket 聊天室(群聊 / 私聊 / 好友系统)
+- Redis Cluster + MySQL 双写架构,跨服务器消息总线
+- 经典时间轮定时器(O(1))、同步/异步日志系统
 
-- backend/：C++ 服务端代码与构建脚本
-- frontend/：Vue 前端界面（聊天室 UI）
-- docs/：接口与部署文档
-- test_pressure/：webbench 压测工具
-- logs/：运行日志输出目录
+## 🧰 技术栈
 
-## 快速开始
+| 层 | 技术 |
+|----|------|
+| 语言 | C++17(后端)· Vue3 + TypeScript(前端) |
+| 网络 | epoll(ET/LT)· 非阻塞 socket · Reactor/Proactor |
+| 协议 | HTTP/1.1 · WebSocket(RFC 6455) |
+| 存储 | MySQL(主存储)· Redis Cluster(热缓存 / 在线状态 / 消息总线) |
+| 构建 | CMake · npm(Vite) |
+
+## 📁 项目结构
+
+```
+backend/          # C++17 后端服务(核心源码)
+frontend/         # Vue3 前端(聊天室 UI)
+docs/             # 文档(API / 架构 / 部署 / 测试)
+test_pressure/    # webbench 压测工具
+tools/            # 测试脚本
+backend/scripts/  # 部署/运维脚本
+```
+
+## 🚀 快速开始
+
+### 前置条件
+
+- **Redis**(默认 `127.0.0.1:7000`),先启动:
+
+```bash
+./backend/scripts/run_redis.sh
+```
+
+- **MySQL**(仅 `-d 1` 双写模式需要,见下文「数据存储」)
 
 ### 1) 后端（C++）
 
@@ -61,7 +85,8 @@ cmake --build build -j
 - `-M`：MySQL 主机地址（默认 localhost，远程可用 `-M 192.168.118.131`）
 - `-I`：本服务器对外 IP（跨服务器消息去重用，三节点集群时启用）
 - `-m`：触发组合模式，`1`=Reactor，`0`=Proactor（默认）
- 运行前请确保 Redis Cluster 已启动并可连通（可使用一键脚本）：
+
+> 运行前请确保 Redis Cluster 已启动并可连通（可使用一键脚本）：
 
 ```bash
 # 先启动 Redis Cluster（只需一次，重启机器后需重新运行）
@@ -94,9 +119,9 @@ npm run dev
 
 浏览器访问前端开发地址（终端会提示），后端默认端口为 9007。
 
-## 数据库（MySQL）
+## 🗄️ 数据存储（MySQL）
 
-> **注意**：`-d 0` 模式下不需要 MySQL。仅 `-d 1` 模式需要。
+> **注意**：`-d 0` 纯 Redis 模式不需要 MySQL；仅 `-d 1` 双写模式需要。
 
 ### 初始化数据库
 
@@ -104,32 +129,38 @@ npm run dev
 # 1. 确保 MySQL 已启动
 sudo systemctl start mysql
 
-# 2. 创建数据库和表
+# 2. 创建数据库和表（用 root）
 mysql -u root < database_init.sql
 
-# 或者用项目账号
-mysql -u yy1 -p666888 < database_init.sql
+# 3.（可选）创建项目默认账号 test
+mysql -u root -e "CREATE USER IF NOT EXISTS 'test'@'localhost' IDENTIFIED BY 'test123456';
+GRANT ALL PRIVILEGES ON mydb.* TO 'test'@'localhost';
+FLUSH PRIVILEGES;"
 ```
+
+> 项目默认使用账号 `test` / `test123456`（`backend/src/main.cpp` 中设置，可用脚本环境变量覆盖）。若你本机使用 root 或其他账号，直接替换命令中的用户名即可。
 
 ### 测试数据（可选）
 
-使用脚本一键导入测试账号（alice / bob）：
+一键导入测试账号（alice / bob）：
 
 ```bash
 ./backend/scripts/mysql_seed_demo.sh
+# 默认账号 test/test123456，可用环境变量覆盖：
+# MYSQL_USER=root MYSQL_PASS=你的密码 ./backend/scripts/mysql_seed_demo.sh
 ```
 
 ### 查看数据库数据
 
 ```bash
 # 进入交互式命令行
-mysql -u yy1 -p666888 mydb
+mysql -u test -ptest123456 mydb
 
 # 或单条查询
-mysql -u yy1 -p666888 -e "USE mydb; SELECT id, username, LEFT(passwd,20) AS passwd, create_time FROM user;"
-mysql -u yy1 -p666888 -e "USE mydb; SELECT u1.username AS user, u2.username AS friend, fr.status FROM friend_relation fr JOIN user u1 ON fr.user_id=u1.id JOIN user u2 ON fr.friend_id=u2.id;"
-mysql -u yy1 -p666888 -e "USE mydb; SELECT * FROM friend_request;"
-mysql -u yy1 -p666888 -e "USE mydb; SELECT * FROM message_log ORDER BY id DESC LIMIT 20;"
+mysql -u test -ptest123456 -e "USE mydb; SELECT id, username, LEFT(passwd,20) AS passwd, create_time FROM user;"
+mysql -u test -ptest123456 -e "USE mydb; SELECT u1.username AS user, u2.username AS friend, fr.status FROM friend_relation fr JOIN user u1 ON fr.user_id=u1.id JOIN user u2 ON fr.friend_id=u2.id;"
+mysql -u test -ptest123456 -e "USE mydb; SELECT * FROM friend_request;"
+mysql -u test -ptest123456 -e "USE mydb; SELECT * FROM message_log ORDER BY id DESC LIMIT 20;"
 ```
 
 ## WebSocket 消息协议
@@ -188,17 +219,7 @@ for i in $(seq 1 4); do ./webbench -c 200 -t 10 http://127.0.0.1:9007/ & done; w
 | Reactor 模式 | `-m` 参数 | 0 (Proactor) | `-m 1` 提升 IO 并发 |
 | 文件描述符 | `ulimit -n` | 1024 | `ulimit -n 65535` |
 
-## 工程亮点
-
-- **经典时间轮定时器**：O(1) 插入/删除/调整，替换原 O(n) 排序链表
-- **MySQL 双写架构**：MySQL 做主存储 + Redis 热缓存 + 启动自动预热
-- **跨服务器消息总线**：Redis Streams + Consumer Groups 实现多节点消息互通
-- **OnlineUserManager**：Redis STRING + TTL 实现全集群在线状态，服务器崩溃自动清理
-- **MessageDispatcher**：路由决策层抽象，本地投递 / 远程转发统一入口
-- **MessageCodec**：协议层独立于业务层，后续可平滑迁移至 Protobuf
-- **模块分层**：Application → MessageBus → Protocol → Infrastructure → Network
-
-## 核心模块
+## 🏗️ 核心模块
 
 ```
 ChatService → MessageDispatcher → 本地: ChatRoom (WebSocket 连接集合)
@@ -207,7 +228,7 @@ ChatService → MessageDispatcher → 本地: ChatRoom (WebSocket 连接集合)
                               OnlineUserManager (全集群在线状态)
 ```
 
-## 最近更新
+## 🗓️ 最近更新
 
 | 日期 | 更新内容 |
 |------|---------|
@@ -224,4 +245,4 @@ ChatService → MessageDispatcher → 本地: ChatRoom (WebSocket 连接集合)
 
 ## 许可
 
-MIT License
+本项目使用 [Apache License 2.0](LICENSE)。
