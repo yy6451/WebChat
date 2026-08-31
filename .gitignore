@@ -1,0 +1,28 @@
+# Node.js 依赖(可 npm install 重新生成)
+node_modules/
+
+# 本地工具链(运行时压缩包,不入库)
+.toolchain/
+
+# 构建产物
+build/
+
+# 日志(可再生的运行产物)
+*.log
+logs/
+
+# 历史归档(过程产物,不推送)
+archive/
+
+# 本地开发配置(每台机器不同,不入库)
+.vscode/
+
+# 前端构建产物(Vite 可重新生成)
+frontend/dist/
+
+# 编译产物/可执行文件
+*.o
+/server
+
+# webbench 编译产物
+test_pressure/webbench-1.5/webbench

@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+	--bg: #f6f3ee;
+	--bg-accent: #d9e6f0;
+	--ink: #0e0f12;
+	--muted: #546072;
+	--brand: #0f5bff;
+	--brand-2: #ff6b4a;
+	--card: #ffffff;
+	--stroke: #e3e7ee;
+	--shadow: 0 20px 50px rgba(15, 91, 255, 0.15);
+	--radius-lg: 18px;
+	--radius-md: 12px;
+}
+
+* { box-sizing: border-box; }
+html, body, #app {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	font-family: 'Space Grotesk', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+	color: var(--ink);
+}
+
+body {
+	background:
+		radial-gradient(1200px 600px at 10% -10%, #ffe6dd, transparent 60%),
+		radial-gradient(900px 600px at 100% 0%, #dfe9ff, transparent 55%),
+		linear-gradient(135deg, var(--bg), var(--bg-accent));
+}
+
+a { color: var(--brand); text-decoration: none; }
+button, input { font-family: inherit; }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+@keyframes floatIn {
+	from { opacity: 0; transform: translateY(12px); }
+	to { opacity: 1; transform: translateY(0); }
+}
